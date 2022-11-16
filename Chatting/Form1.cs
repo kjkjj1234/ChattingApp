@@ -128,7 +128,7 @@ namespace Chatting
             {
                 this.txtDialog.AppendText(message + "\r\n");
                 this.txtDialog.Focus();
-                // 글을 계속 입력받을 때 입력받은 마지막 줄에 포커스를 맞춰줌.
+                // 글을 계속 입력받을 때 입력받은 마지막 줄에 포커스를 맞춰준다.
                 this.txtDialog.ScrollToCaret();
             }
         }

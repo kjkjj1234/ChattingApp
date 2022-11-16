@@ -29,7 +29,6 @@ namespace ConsoleServer
                 try
                 {
                     IPAddress address = Dns.GetHostEntry("").AddressList[0];
-                    //listener = new TcpListener(address, PORT);
                     listener = new TcpListener(IPAddress.Any, PORT);
                     listener.Start();
                     Console.WriteLine("Server ready 1-------");
@@ -96,6 +95,8 @@ namespace ConsoleServer
                 {
                     ns = client.GetStream();
                     Socket socket = client.Client;
+                    // clientName 부분에 로그인 정보에서 닉네임만 연결해주면 될 것 같아요.
+                    // 연결 무사히 되면 디자인 Form1에서 txtName 텍스트박스 속성 중 ReadOnly를 true로 변경해주세요.
                     clientName = socket.RemoteEndPoint.ToString();
                     Console.WriteLine(clientName + " 접속");
                     sr = new StreamReader(ns, Encoding.Default);
