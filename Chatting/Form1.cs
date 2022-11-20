@@ -19,9 +19,14 @@ namespace Chatting
         string serverIP, dialogName;
         int serverPort;
         bool isAlive = false;
+        // NetworkStream: 데이터를 주고 받는데 사용한다.
         NetworkStream ns = null;
+        // StreamReader: 스트림에서 문자를 읽는다.
         StreamReader sr = null;
+        // StreamWriter: 문자열 데이터를 스트림에 저장하는 데 쓰인다.
         StreamWriter sw = null;
+        // TcpClient 클래스는 클라이언트에서는 TcpClient가 서버에 연결 요청을 하는 역할을 한다.
+        // 서버에서는 클라이언트의 요청을 수락하면 클라이언트와 통신을 할 때 사용하는 TcpClient의 인스턴스가 반환된다.
         TcpClient client = null;
 
         public Form1()
@@ -97,9 +102,13 @@ namespace Chatting
         {
             try
             {
+                // 클라이언트 연결
                 client = new TcpClient(this.serverIP, this.serverPort);
+                // GetStream(): 소켓에서 메시지를 가져오는 스트림
                 ns = client.GetStream();
+                // 메시지를 받아옴
                 sr = new StreamReader(ns, Encoding.Default);
+                // 메시지를 보냄
                 sw = new StreamWriter(ns, Encoding.Default);
                 Thread receiveThread = new Thread(new ThreadStart(run));
                 receiveThread.IsBackground = true;
