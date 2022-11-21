@@ -29,6 +29,7 @@ namespace ConsoleServer
                 // handleList에서 요소를 모두 제거한다.
                 handleList.Clear();
             }
+            // 서버 준비
             public void Echo()
             {
                 try
@@ -44,10 +45,13 @@ namespace ConsoleServer
                     Console.WriteLine("Server ready 1-------");
                     while (true)
                     {
+                        // .AcceptTcpClient(): 보류 중인 연결 요청을 수락한다.
                         //클라이언트 개당 소켓생성
                         TcpClient client = listener.AcceptTcpClient();
                         EchoHandler handler = new EchoHandler(this, client);
+                        // Add 함수에 handler를 전달해줌.
                         Add(handler);
+                        // handler를 시작함.
                         handler.start();
                     }
                 }
@@ -64,16 +68,23 @@ namespace ConsoleServer
             }
             public void Add(EchoHandler handler)
             {
+                // lock(): 특정 스레드 객체가 A 메서드를 호출하고 있으면, 다른 스레드 객체는 A 메서드에 접근할 수 없도록 한다.
+                // .SyncRoot: 여러 스레드가 데이터에 액세스하고 공유할 수 있도록 하는 데 사용한다.
+                // handleList를 한 스레드가 호출하고 있을 때 다른 스레드는 접근할 수 없도록 잠금.
                 lock (handleList.SyncRoot)
+                    // handleList에 handler를 추가함.
                     handleList.Add(handler);
             }
             public void broadcast(String str)
             {
+                // handleList를 한 스레드가 호출하고 있을 때 다른 스레드는 접근할 수 없도록 잠금.
                 lock (handleList.SyncRoot)
                 {
+                    // 현재 날짜, 시간을 출력함.
                     string dstes = DateTime.Now.ToString() + " : ";
                     Console.Write(dstes);
                     Console.WriteLine(str);
+                    // foreach (데이터형식 변수명 in 배열): 배열의 끝에 도달하면 자동으로 반복이 종료됨.
                     foreach (EchoHandler handler in handleList)
                     {
                         EchoHandler echo = handler as EchoHandler;
