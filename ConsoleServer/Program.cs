@@ -46,8 +46,9 @@ namespace ConsoleServer
                     while (true)
                     {
                         // .AcceptTcpClient(): 보류 중인 연결 요청을 수락한다.
-                        //클라이언트 개당 소켓생성
+                        //클라이언트 개당 소켓 생성
                         TcpClient client = listener.AcceptTcpClient();
+                        // this를 인수로 전달함.
                         EchoHandler handler = new EchoHandler(this, client);
                         // Add 함수에 handler를 전달해줌.
                         Add(handler);
@@ -83,11 +84,14 @@ namespace ConsoleServer
                     // 현재 날짜, 시간을 출력함.
                     string dstes = DateTime.Now.ToString() + " : ";
                     Console.Write(dstes);
+                    // 빈 문자열 출력
                     Console.WriteLine(str);
                     // foreach (데이터형식 변수명 in 배열): 배열의 끝에 도달하면 자동으로 반복이 종료됨.
                     foreach (EchoHandler handler in handleList)
                     {
+                        // as: 형변환이 가능하면 형변환을 수행하고, 그렇지 않으면 null 값을 대입하는 연산자다. 
                         EchoHandler echo = handler as EchoHandler;
+                        // 형변환이 가능하다면 메시지를 출력함.
                         if (echo != null)
                             echo.sendMessage(str);
                     }
@@ -95,22 +99,30 @@ namespace ConsoleServer
             }
             public void Remove(EchoHandler handler)
             {
+                // handleList를 한 스레드가 호출하고 있을 때 다른 스레드는 접근할 수 없도록 잠금.
                 lock (handleList.SyncRoot)
+                    // .Remove(): 특정 요소를 리스트에서 제거 (객체 지정)
                     handleList.Remove(handler);
             }
         }
         public class EchoHandler
         {
             Server server;
+            // TcpClient 클래스는 클라이언트에서는 TcpClient가 서버에 연결 요청을 하는 역할을 한다.
+            // 서버에서는 클라이언트의 요청을 수락하면 클라이언트와 통신을 할 때 사용하는 TcpClient의 인스턴스가 반환된다.
             TcpClient client;
+            // NetworkStream: 데이터를 주고 받는데 사용한다.
             NetworkStream ns = null;
+            // StreamReader: 스트림에서 문자를 읽는다.
             StreamReader sr = null;
+            // StreamWriter: 문자열 데이터를 스트림에 저장하는 데 쓰인다.
             StreamWriter sw = null;
+            // 비어있는 문자열
             string str = string.Empty;
-
             string clientName;
             public EchoHandler(Server server, TcpClient client)
             {
+                // this: 클래스 내부에서 필드명과, 메서드의 매개 변수의 이름이 동일할 때 모호성을 제거할 수 있다.
                 this.server = server;
                 this.client = client;
                 try
@@ -120,8 +132,13 @@ namespace ConsoleServer
                     Socket socket = client.Client;
                     // clientName 부분에 로그인 정보에서 닉네임만 연결해주면 될 것 같아요.
                     // 연결 무사히 되면 디자인 Form1에서 txtName 텍스트박스 속성 중 ReadOnly를 true로 변경해주세요.
+
+                    // .RemoteEndPoint: Socket의 원격 EndPoint(종단점) 정보를 조사한다.
+                    // EndPoint: 서버와 클라이언트간에 통신을 하기위한 양쪽 터널의 끝점같은 것.
                     clientName = socket.RemoteEndPoint.ToString();
                     Console.WriteLine(clientName + " 접속");
+                    // Encoding.Default: Default byte에서 string으로 변환해준다.
+                    // 읽기, 쓰기 설정
                     sr = new StreamReader(ns, Encoding.Default);
                     sw = new StreamWriter(ns, Encoding.Default);
                 }
