@@ -49,6 +49,7 @@ namespace ConsoleServer
                         //클라이언트 개당 소켓 생성
                         TcpClient client = listener.AcceptTcpClient();
                         // this를 인수로 전달함.
+                        // new EchoHandler(server, client)
                         EchoHandler handler = new EchoHandler(this, client);
                         // Add 함수에 handler를 전달해줌.
                         Add(handler);
@@ -146,6 +147,8 @@ namespace ConsoleServer
             }
             public void start()
             {
+                // thread: 프로세스 내부에서 생성되는 실제로 작업을 하는 주체이다.
+                // 새로운 쓰레드에서 ProcessClient() 실행
                 Thread t = new Thread(new ThreadStart(ProcessClient));
                 t.Start();
             }
@@ -153,17 +156,21 @@ namespace ConsoleServer
             {
                 try
                 {
+                    // .ReadLine: 현재 스트림에서 한 줄의 문자를 읽고 데이터를 문자열로 반환한다.
                     while ((str = sr.ReadLine()) != null)
                         server.broadcast(str);
                 }
                 catch (Exception)
                 {
                     Console.WriteLine(clientName + " 접속해제");
+                    // .Flush : 버퍼된 바이트를 모두 출력하여 버퍼를 비우하는 것을 명시하는 메소드이다.
                     sw.Flush();
                 }
                 finally
                 {
+                    // 프로그램 종료
                     server.Remove(this);
+                    // .Close : 폼 닫기
                     sw.Close();
                     sr.Close();
                     client.Close();
@@ -172,6 +179,7 @@ namespace ConsoleServer
             public void sendMessage(string message)
             {
                 sw.WriteLine(message);
+                // .Flush : 버퍼된 바이트를 모두 출력하여 버퍼를 비우하는 것을 명시하는 메소드이다.
                 sw.Flush();
             }
         }

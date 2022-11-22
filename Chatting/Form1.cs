@@ -32,19 +32,23 @@ namespace Chatting
         public Form1()
         {
             InitializeComponent();
+            // Dns.GetHostByName: 인터넷 DNS 서버에서 호스트 정보를 캐낸다. 빈 문자열을 호스트 이름으로 전달하면 이 메서드는 로컬 컴퓨터의 표준 호스트 이름을 검색한다.
             IPHostEntry hostIP = Dns.GetHostByName(Dns.GetHostName());
+            // hostIP.AddressList : 호스트와 연결된 IP 주소를 가져오거나 설정한다.
             serverIP = hostIP.AddressList[0].ToString();
         }
         private void Form1_Load(object sender, EventArgs e)
         {
             this.txtPort.Text = 5555.ToString();
             this.txtIP.Text = serverIP.ToString();
+            // .Enabled : 컨트롤이 사용자 상호 작용에 응답할 수 있으면 true이고, 그렇지 않으면 false이다.
             this.txtPort.Enabled = false;
             this.txtIP.Enabled = false;
         }
         private void btnConnect_Click(object sender, EventArgs e)
         {
             dialogName = this.txtName.Text;
+            // .IsNullOrEmpty : 공백과 null 값을 체크해야 되는 경우에 사용하는 string 클래스 함수이다. 해당 예외처리는 필수값 체크 시 많이 사용되며, 필수값이 없을때 예외처리를 해주기 위해 자주 사용하는 함수이다.
             if (string.IsNullOrEmpty(dialogName))
             {
                 MessageBox.Show("대화명을 입력하세요.");
@@ -60,7 +64,10 @@ namespace Chatting
                 MessageBox.Show("포트를 입력하세요.");
                 return;
             }
+            // .Parse(): 숫자 형식의 문자열을 정수로 변환할 수 있다.
+            // Int32.Parse(): 32비트 부호 있는 정수 타입에 사용할 수 있다.
             serverPort = Int32.Parse(this.txtPort.Text);
+            // isAlive 프로퍼티: 현재 스레드의 실행 상태를 나타낸다. 스레드가 시작된 경우 true를 반환하고 그렇지 않은 경우 false를 반환한다.
             isAlive = true;
             try
             {
@@ -69,17 +76,23 @@ namespace Chatting
             }
             catch (Exception)
             {
+                // .Clear : 지우기 메서드
                 this.txtName.Clear();
+                // isAlive 프로퍼티 : 현재 스레드의 실행 상태를 나타낸다. 스레드가 시작된 경우 true를 반환하고 그렇지 않은 경우 false를 반환한다.
                 this.isAlive = false;
             }
         }
         private void txtSend_KeyPress(object sender, KeyPressEventArgs e)
         {
+            // KeyChar: 사용자가 누른 키의 실제 문자 값을 반환
             if ((int)Keys.Enter == e.KeyChar)
             {
                 string message = this.txtSend.Text;
+                // .Trim: 현재 문자열의 앞쪽, 뒤쪽 공백을 모두 제거한 문자열을 반환한다.
                 sendMessage("[" + dialogName + "] " + message.Trim());
+                // .Clear : 지우기 메서드
                 this.txtSend.Clear();
+                // .SelectionStart : 텍스트 상자에서 선택한 텍스트의 시작 지점을 가져오거나 설정한다.
                 this.txtSend.SelectionStart = 0;
             }
         }
@@ -88,6 +101,7 @@ namespace Chatting
             try
             {
                 sendMessage("[" + dialogName + " 퇴장]");
+                // .Close : 폼 닫기
                 sr.Close();
                 sw.Close();
                 ns.Close();
@@ -95,6 +109,7 @@ namespace Chatting
             catch { }
             finally
             {
+                // Dispose : 바로 삭제가 필요한 리소스를 해제하는 함수
                 this.Dispose();
             }
         }
@@ -106,17 +121,22 @@ namespace Chatting
                 client = new TcpClient(this.serverIP, this.serverPort);
                 // GetStream(): 소켓에서 메시지를 가져오는 스트림
                 ns = client.GetStream();
-                // 메시지를 받아옴
+                // Encoding.Default: Default byte에서 string으로 변환해준다.
+                // 읽기 설정
                 sr = new StreamReader(ns, Encoding.Default);
-                // 메시지를 보냄
+                // 쓰기 설정
                 sw = new StreamWriter(ns, Encoding.Default);
+                // thread: 프로세스 내부에서 생성되는 실제로 작업을 하는 주체이다.
+                // 새로운 쓰레드에서 run() 실행
                 Thread receiveThread = new Thread(new ThreadStart(run));
+                // .IsBackground : 메인 프로세스가 종료될 때 Thread도 같이 종료됨.
                 receiveThread.IsBackground = true;
                 receiveThread.Start();
             }
             catch (Exception e)
             {
                 MessageBox.Show("서버 시작 실패");
+                // throw: 특정 조건을 만족하지 않으면 throw 문을 통해서 예외를 던지고 catch 문으로 받는다.
                 throw e;
             }
         }
@@ -125,7 +145,9 @@ namespace Chatting
             string message = "start";
             try
             {
+                // .Connected : Socket이 마지막으로 Send 또는 Receive 작업을 수행할 때 원격 호스트에 연결되었는지 여부를 나타내는 값을 가져온다.
                 if (client.Connected && sr != null)
+                    // .ReadLine: 현재 스트림에서 한 줄의 문자를 읽고 데이터를 문자열로 반환한다.
                     while ((message = sr.ReadLine()) != null)
                         AppendMessage(message);
             }
@@ -135,6 +157,7 @@ namespace Chatting
         {
             if (this.txtDialog != null && this.txtSend != null)
             {
+                // .AppendText : 항상 스크롤이 BOTTOM 으로 가게된다.
                 this.txtDialog.AppendText(message + "\r\n");
                 this.txtDialog.Focus();
                 // 글을 계속 입력받을 때 입력받은 마지막 줄에 포커스를 맞춰준다.
@@ -148,6 +171,7 @@ namespace Chatting
                 if (sw != null)
                 {
                     sw.WriteLine(message);
+                    // .Flush : 버퍼된 바이트를 모두 출력하여 버퍼를 비우하는 것을 명시하는 메소드이다.
                     sw.Flush();
                 }
             }
