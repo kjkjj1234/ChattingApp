@@ -130,6 +130,7 @@ namespace ConsoleServer
                 {
                     // GetStream(): 소켓에서 메시지를 가져오는 스트림
                     ns = client.GetStream();
+                    // TCP 서버를 대기시키기 위한 socket을 생성 후 클라이언트 정보를 넣음.
                     Socket socket = client.Client;
                     // clientName 부분에 로그인 정보에서 닉네임만 연결해주면 될 것 같아요.
                     // 연결 무사히 되면 디자인 Form1에서 txtName 텍스트박스 속성 중 ReadOnly를 true로 변경해주세요.
