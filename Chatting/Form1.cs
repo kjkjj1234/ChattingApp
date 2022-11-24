@@ -29,6 +29,7 @@ namespace Chatting
         // 서버에서는 클라이언트의 요청을 수락하면 클라이언트와 통신을 할 때 사용하는 TcpClient의 인스턴스가 반환된다.
         TcpClient client = null;
 
+        // 아이피 정보 저장
         public Form1()
         {
             InitializeComponent();
@@ -37,6 +38,7 @@ namespace Chatting
             // hostIP.AddressList : 호스트와 연결된 IP 주소를 가져오거나 설정한다.
             serverIP = hostIP.AddressList[0].ToString();
         }
+        // 폼을 띄웠을 때 포트 번호랑 아이피 번호 나타냄.
         private void Form1_Load(object sender, EventArgs e)
         {
             this.txtPort.Text = 5555.ToString();
@@ -45,6 +47,7 @@ namespace Chatting
             this.txtPort.Enabled = false;
             this.txtIP.Enabled = false;
         }
+        // 클라이언트가 연결하려고 할 때 적어야 하는 필수 내용. 필수 내용을 전부 입력했다면 입장 메시지 출력.
         private void btnConnect_Click(object sender, EventArgs e)
         {
             dialogName = this.txtName.Text;
@@ -82,6 +85,7 @@ namespace Chatting
                 this.isAlive = false;
             }
         }
+        // 메시지를 입력하고 엔터키를 누르자마자 대화로그에 전달.
         private void txtSend_KeyPress(object sender, KeyPressEventArgs e)
         {
             // KeyChar: 사용자가 누른 키의 실제 문자 값을 반환
@@ -89,6 +93,7 @@ namespace Chatting
             {
                 string message = this.txtSend.Text;
                 // .Trim: 현재 문자열의 앞쪽, 뒤쪽 공백을 모두 제거한 문자열을 반환한다.
+                // [클라이언트 이름]보낸 메시지
                 sendMessage("[" + dialogName + "] " + message.Trim());
                 // .Clear : 지우기 메서드
                 this.txtSend.Clear();
@@ -96,6 +101,7 @@ namespace Chatting
                 this.txtSend.SelectionStart = 0;
             }
         }
+        // 종료하기 버튼을 누르면 퇴장을 대화로그에 전달한 후 폼 종료.
         private void btnExit_Click(object sender, EventArgs e)
         {
             try
@@ -113,6 +119,7 @@ namespace Chatting
                 this.Dispose();
             }
         }
+        // 클라이언트 정보를 서버에 전달해줌.
         public void Echo()
         {
             try
@@ -140,12 +147,14 @@ namespace Chatting
                 throw e;
             }
         }
+        // 클라이언트가 연결되어 있으면 계속 실행.
         public void run()
         {
             string message = "start";
             try
             {
                 // .Connected : Socket이 마지막으로 Send 또는 Receive 작업을 수행할 때 원격 호스트에 연결되었는지 여부를 나타내는 값을 가져온다.
+                // 원격 호스트에 연결되었는지와 읽을 수 있는지를 확인.
                 if (client.Connected && sr != null)
                     // .ReadLine: 현재 스트림에서 한 줄의 문자를 읽고 데이터를 문자열로 반환한다.
                     while ((message = sr.ReadLine()) != null)
@@ -153,17 +162,20 @@ namespace Chatting
             }
             catch (Exception) { MessageBox.Show("error"); }
         }
+        // 대화로그 설정 부분
         public void AppendMessage(string message)
         {
             if (this.txtDialog != null && this.txtSend != null)
             {
                 // .AppendText : 항상 스크롤이 BOTTOM 으로 가게된다.
+                // \r: 맨 앞, \n: 다음 줄
                 this.txtDialog.AppendText(message + "\r\n");
                 this.txtDialog.Focus();
                 // 글을 계속 입력받을 때 입력받은 마지막 줄에 포커스를 맞춰준다.
                 this.txtDialog.ScrollToCaret();
             }
         }
+        // 메시지 전송
         private void sendMessage(string message)
         {
             try

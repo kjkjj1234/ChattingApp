@@ -13,7 +13,7 @@ namespace ConsoleServer
         static void Main(string[] args)
         {
             // 생성자 호출, 힙에 객체 생성
-            Server server = new Server();
+            Server server = new Server();  // 이 줄만으로는 코드 실행 없음.
             server.Echo();
         }
         public class Server
@@ -29,7 +29,7 @@ namespace ConsoleServer
                 // handleList에서 요소를 모두 제거한다.
                 handleList.Clear();
             }
-            // 서버 준비
+            // 서버 준비. 실행 대기.
             public void Echo()
             {
                 try
@@ -43,6 +43,7 @@ namespace ConsoleServer
                     // listener 객체는 클라이언트가 TcpClient.Connect()를 호출하여 연결 요청이 오기를 기다린다.
                     listener.Start();
                     Console.WriteLine("Server ready 1-------");
+                    // 클라이언트 정보를 받고 클라이언트 당 소켓을 생성해줌.
                     while (true)
                     {
                         // .AcceptTcpClient(): 보류 중인 연결 요청을 수락한다.
@@ -68,6 +69,7 @@ namespace ConsoleServer
                     listener.Stop();
                 }
             }
+            // 클라이언트가 연결했을 때
             public void Add(EchoHandler handler)
             {
                 // lock(): 특정 스레드 객체가 A 메서드를 호출하고 있으면, 다른 스레드 객체는 A 메서드에 접근할 수 없도록 한다.
@@ -77,6 +79,7 @@ namespace ConsoleServer
                     // handleList에 handler를 추가함.
                     handleList.Add(handler);
             }
+            // 서버창에 날짜, 시간, 메시지를 출력.
             public void broadcast(String str)
             {
                 // handleList를 한 스레드가 호출하고 있을 때 다른 스레드는 접근할 수 없도록 잠금.
@@ -98,6 +101,7 @@ namespace ConsoleServer
                     }
                 }
             }
+            // 클라이언트가 종료 시켰을 때
             public void Remove(EchoHandler handler)
             {
                 // handleList를 한 스레드가 호출하고 있을 때 다른 스레드는 접근할 수 없도록 잠금.
@@ -121,6 +125,7 @@ namespace ConsoleServer
             // 비어있는 문자열
             string str = string.Empty;
             string clientName;
+            // 클라이언트 정보를 받고 메시지를 보내기 위한 초기화.
             public EchoHandler(Server server, TcpClient client)
             {
                 // this: 클래스 내부에서 필드명과, 메서드의 매개 변수의 이름이 동일할 때 모호성을 제거할 수 있다.
@@ -146,6 +151,7 @@ namespace ConsoleServer
                 }
                 catch (Exception) { Console.WriteLine("연결 실패"); }
             }
+            // 쓰레드 생성.
             public void start()
             {
                 // thread: 프로세스 내부에서 생성되는 실제로 작업을 하는 주체이다.
@@ -153,6 +159,7 @@ namespace ConsoleServer
                 Thread t = new Thread(new ThreadStart(ProcessClient));
                 t.Start();
             }
+            // 클라이언트가 메시지를 보내는 과정 (문자를 받았는지 확인)
             public void ProcessClient()
             {
                 try
@@ -177,6 +184,7 @@ namespace ConsoleServer
                     client.Close();
                 }
             }
+            // 클라이언트의 메시지를 출력 후 초기화
             public void sendMessage(string message)
             {
                 sw.WriteLine(message);
